@@ -1,8 +1,31 @@
-import { Tabs } from "expo-router";
+import { Tabs, useRouter } from "expo-router";
 import { FontAwesome5 } from "@expo/vector-icons";
 import { Button } from "react-native-paper";
+import usePostStore from "../../store/usePostStore";
+import useAuthStore from "../../store/useAuthStore";
+import { useState } from "react";
 
 export default () => {
+  const { user, token } = useAuthStore();
+  const { createPost } = usePostStore();
+  const router = useRouter();
+  const [loading, setLoading] = useState<boolean>(false);
+
+  function handleCreatePost() {
+    if (user && token) {
+      setLoading(true);
+      createPost(user.id, token)
+        .then((success) => {
+          if (success) {
+            router.push("/(tabs)/home");
+          }
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    }
+  }
+
   return (
     <Tabs>
       <Tabs.Screen
@@ -33,7 +56,9 @@ export default () => {
           headerRight: () => (
             <Button
               mode="contained"
+              loading={loading}
               style={{ borderRadius: 5, marginRight: 10 }}
+              onPress={handleCreatePost}
             >
               Post
             </Button>
