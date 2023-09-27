@@ -1,5 +1,6 @@
-import React, { useState } from "react";
-import { View, useWindowDimensions } from "react-native";
+import { Link, useFocusEffect, useRouter } from "expo-router";
+import React, { useCallback, useState } from "react";
+import { Pressable, View, useWindowDimensions } from "react-native";
 import {
   Button,
   HelperText,
@@ -7,31 +8,33 @@ import {
   Text,
   TextInput,
 } from "react-native-paper";
-import { useRouter } from "expo-router";
-import { signUpCredentials } from "../types/auth";
 import useAuthStore from "../store/useAuthStore";
+import { signInCredentials } from "../types/auth";
 
-const RegisterPage = () => {
+const LoginPage = () => {
   const { width: screenWidth } = useWindowDimensions();
-  const [username, setUsername] = useState<string>("");
+  const router = useRouter();
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
-  const [passwordConfirmation, setPasswordConfirmation] = useState<string>("");
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<boolean>(false);
   const [visible, setVisible] = useState(false);
-  const router = useRouter();
 
-  const { signUpUser, errors } = useAuthStore();
+  const { user, errors, signInUser, getUser } = useAuthStore();
 
-  function handleRegister() {
+  useFocusEffect(
+    useCallback(() => {
+      getUser().then(() => {
+        if (user !== null) {
+          router.push("/(tabs)/home");
+        }
+      });
+    }, [])
+  );
+
+  function handleLogin() {
     setLoading(true);
-    const credentials: signUpCredentials = {
-      name: username,
-      email,
-      password,
-      password_confirmation: passwordConfirmation,
-    };
-    signUpUser(credentials)
+    const credentials: signInCredentials = { email, password };
+    signInUser(credentials)
       .then((success) => {
         if (success) {
           router.push("/(tabs)/home");
@@ -48,11 +51,10 @@ const RegisterPage = () => {
   const clearInputs = () => {
     setEmail("");
     setPassword("");
-    setUsername("");
-    setPasswordConfirmation("");
   };
 
   const onDismissSnackBar = () => setVisible(false);
+
   return (
     <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
       <Snackbar visible={visible} onDismiss={onDismissSnackBar}>
@@ -62,33 +64,19 @@ const RegisterPage = () => {
         variant="headlineLarge"
         style={{ color: "black", marginBottom: 40 }}
       >
-        Register
+        Login
       </Text>
       <View style={{ width: screenWidth - 40 }}>
-        <View style={{ marginBottom: 10 }}>
-          <TextInput
-            label="Username"
-            value={username}
-            onChangeText={(username) => setUsername(username)}
-            mode="outlined"
-            autoComplete="username"
-            error={errors?.errors?.name ? true : false}
-          />
-          <HelperText type="error">
-            {errors?.errors?.name && errors?.errors?.name[0]}
-          </HelperText>
-        </View>
         <View style={{ marginBottom: 10 }}>
           <TextInput
             label="Email"
             value={email}
             onChangeText={(email) => setEmail(email)}
             mode="outlined"
-            autoComplete="email"
             error={errors?.errors?.email && true}
           />
           <HelperText type="error">
-            {errors?.errors?.name && errors?.errors?.name[0]}
+            {errors?.errors?.email && errors?.errors?.email[0]}
           </HelperText>
         </View>
         <View style={{ marginBottom: 10 }}>
@@ -98,37 +86,28 @@ const RegisterPage = () => {
             secureTextEntry={true}
             onChangeText={(password) => setPassword(password)}
             mode="outlined"
-            autoComplete="password"
             error={errors?.errors?.password && true}
           />
           <HelperText type="error">
             {errors?.errors?.password && errors?.errors?.password[0]}
           </HelperText>
         </View>
-        <View style={{ marginBottom: 10 }}>
-          <TextInput
-            label="Password confirmation"
-            value={passwordConfirmation}
-            secureTextEntry={true}
-            onChangeText={(passwordConfirmation) =>
-              setPasswordConfirmation(passwordConfirmation)
-            }
-            mode="outlined"
-            autoComplete="password"
-            error={errors?.errors?.password && true}
-          />
-        </View>
         <Button
           mode="contained"
-          onPress={() => handleRegister()}
-          style={{ marginVertical: 20, borderRadius: 5 }}
+          onPress={() => handleLogin()}
+          style={{ marginBottom: 20, borderRadius: 5 }}
           loading={loading}
         >
-          Register
+          Enter
         </Button>
       </View>
+      <Link href="/register" asChild>
+        <Pressable>
+          <Text> Don't have an account? Register </Text>
+        </Pressable>
+      </Link>
     </View>
   );
 };
 
-export default RegisterPage;
+export default LoginPage;

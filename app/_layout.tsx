@@ -1,33 +1,28 @@
-import React from "react";
 import { Stack, useRouter } from "expo-router";
-import { Button, PaperProvider } from "react-native-paper";
+import React from "react";
+import { PaperProvider, DefaultTheme } from "react-native-paper";
+
+const theme = {
+  ...DefaultTheme,
+  roundness: 2,
+  colors: {
+    ...DefaultTheme.colors,
+    primary: '#3498db',
+    accent: '#f1c40f',
+  },
+};
 
 const StackLayout = () => {
   const router = useRouter();
+
   return (
-    <PaperProvider>
+    <PaperProvider theme={theme}>
       <Stack>
-        <Stack.Screen
-          name="index"
-          options={{ headerTitle: "Login", headerShown: false }}
-        />
+        <Stack.Screen name="index" options={{ headerShown: false }} />
+        <Stack.Screen name="login" options={{ headerTitle: "Login" }} />
         <Stack.Screen
           name="register"
-          options={{
-            headerTitle: "Create account",
-            headerRight: () => (
-              <Button onPress={() => router.push("/modal")}>Open</Button>
-            ),
-          }}
-        />
-        <Stack.Screen
-          name="modal"
-          options={{
-            presentation: "modal",
-            headerLeft: () => (
-              <Button onPress={() => router.push("/register")}>Close</Button>
-            ),
-          }}
+          options={{ headerTitle: "Create account" }}
         />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       </Stack>

@@ -1,25 +1,48 @@
-import { View, Text, Pressable } from "react-native";
-import React from "react";
-import { Link, useRouter } from "expo-router";
-import { Button } from "react-native-paper";
+import { useFocusEffect, useRouter } from "expo-router";
+import React, { useCallback, useEffect } from "react";
+import { View, useWindowDimensions } from "react-native";
+import { Button, Text } from "react-native-paper";
+import useAuthStore from "../store/useAuthStore";
 
 const LoginPage = () => {
+  const { width: screenWidth } = useWindowDimensions();
   const router = useRouter();
+  const { clearErrors, getUser, user } = useAuthStore();
+
+  useFocusEffect(
+    useCallback(() => {
+      clearErrors();
+      getUser();
+      if (user) {
+        router.push("/(tabs)/home");
+      }
+    }, [user])
+  );
 
   return (
     <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-      <Button
-        mode="contained"
-        onPress={() => router.replace("/(tabs)/home")}
-        style={{ marginBottom: 16 }}
+      <Text
+        variant="headlineLarge"
+        style={{ color: "black", marginBottom: 40 }}
       >
-        Login
-      </Button>
-      <Link href="/register" asChild>
-        <Pressable>
-          <Text> Open register </Text>
-        </Pressable>
-      </Link>
+        Welcome
+      </Text>
+      <View style={{ width: screenWidth - 40 }}>
+        <Button
+          mode="contained"
+          onPress={() => router.push("/login")}
+          style={{ marginBottom: 20, borderRadius: 5 }}
+        >
+          Sign In
+        </Button>
+        <Button
+          mode="outlined"
+          onPress={() => router.push("/register")}
+          style={{ marginBottom: 20, borderRadius: 5 }}
+        >
+          Sign Up
+        </Button>
+      </View>
     </View>
   );
 };
