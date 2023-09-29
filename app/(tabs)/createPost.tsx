@@ -1,11 +1,20 @@
-import React from "react";
-import { View, useWindowDimensions } from "react-native";
+import { useFocusEffect } from "expo-router";
+import React, { useCallback, useRef } from "react";
+import { TextInput as RNTextInput, View, useWindowDimensions } from "react-native";
 import { HelperText, TextInput } from "react-native-paper";
 import usePostStore from "store/usePostStore";
 
 const CreatePostPage = () => {
   const { width: screenWidth } = useWindowDimensions();
   const { title, body, setBody, setTitle, errors } = usePostStore();
+
+  const titleInputRef = useRef<RNTextInput>(null);
+
+  useFocusEffect(
+    useCallback(() => {
+      titleInputRef.current?.focus();
+    }, [])
+  );
 
   return (
     <View
@@ -19,6 +28,7 @@ const CreatePostPage = () => {
             value={title}
             onChangeText={(text) => setTitle(text)}
             error={errors?.errors?.title && true}
+            ref={titleInputRef}
           />
           <HelperText type="error">
             {errors?.errors?.title && errors?.errors?.title[0]}
