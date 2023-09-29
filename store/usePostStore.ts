@@ -1,6 +1,5 @@
 import { create } from "zustand";
 import axios, { AxiosError } from "axios";
-import { API_URL } from "contanst";
 import { ValidationErrors } from "types/types";
 
 import useAuthStore from "./useAuthStore";

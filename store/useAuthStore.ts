@@ -7,7 +7,7 @@ import {
 import { create } from "zustand";
 import * as SecureStore from "expo-secure-store";
 import axios, { AxiosError } from "axios";
-import { API_URL } from "contanst";
+import { signIn, signOut, signUp } from "services/authServices";
 
 interface InputErrors {
   name: Array<string> | null;
@@ -47,7 +47,7 @@ const useAuthStore = create<AuthStore>()((set, get) => ({
   },
   signInUser: async (credentials: signInCredentials): Promise<boolean> => {
     try {
-      const response = await axios.post(API_URL + "/login", credentials);
+      const response = await signIn(credentials);
       if (response.data && response.status === 200) {
         const { user, token } = response.data;
         await SecureStore.setItemAsync("user", JSON.stringify(user));
@@ -98,7 +98,7 @@ const useAuthStore = create<AuthStore>()((set, get) => ({
   },
   signUpUser: async (credentials: signUpCredentials): Promise<boolean> => {
     try {
-      const response = await axios.post(API_URL + "/register", credentials);
+      const response = await signUp(credentials);
       if (response.data && response.status === 201) {
         const { user, token } = response.data;
         await SecureStore.setItemAsync("user", JSON.stringify(user));
@@ -151,12 +151,7 @@ const useAuthStore = create<AuthStore>()((set, get) => ({
     try {
       const userToken = get().token;
       if (userToken) {
-        const response = await axios.post(
-          API_URL + "/logout",
-          {},
-          { headers: { Authorization: "Bearer " + userToken } }
-        );
-
+        const response = await signOut(userToken);
         if (response) {
           console.log(response.data);
         }
