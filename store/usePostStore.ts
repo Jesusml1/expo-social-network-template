@@ -4,6 +4,7 @@ import { ValidationErrors } from "types/types";
 
 import useAuthStore from "./useAuthStore";
 import { getPosts, storePost } from "services/postServices";
+import { User } from "types/auth";
 
 export type NewPost = {
   user_id: number;
@@ -16,6 +17,7 @@ type Post = {
   title: string;
   body: string;
   created_at: string;
+  user: User
 };
 
 interface InputErrors {

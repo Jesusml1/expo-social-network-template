@@ -4,17 +4,21 @@ import {
   Alert,
   BackHandler,
   FlatList,
-  useWindowDimensions
+  Pressable,
+  useWindowDimensions,
 } from "react-native";
-import { Button, Card, Text } from "react-native-paper";
+import { Card, Text } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 import usePostStore from "store/usePostStore";
+import { User } from "types/auth";
+import { formatDate, truncateString } from "utils/formatting";
 
 type Post = {
   id: number;
   title: string;
   body: string;
   created_at: string;
+  user: User;
 };
 
 const HomePage = () => {
@@ -22,24 +26,24 @@ const HomePage = () => {
   const [refreshing, setRefreshing] = React.useState(false);
   const { posts, fetchPosts, refetchPosts } = usePostStore();
 
-  const backActionHandler = () => {
-    Alert.alert("Are you sure?", "Are you sure you want to exit?", [
-      {
-        text: "Cancel",
-        onPress: () => null,
-        style: "cancel",
-      },
-      { text: "Yes", onPress: () => BackHandler.exitApp() },
-    ]);
-    return true;
-  };
+  // const backActionHandler = () => {
+  //   Alert.alert("Are you sure?", "Are you sure you want to exit?", [
+  //     {
+  //       text: "Cancel",
+  //       onPress: () => null,
+  //       style: "cancel",
+  //     },
+  //     { text: "Yes", onPress: () => BackHandler.exitApp() },
+  //   ]);
+  //   return true;
+  // };
 
-  useEffect(() => {
-    BackHandler.addEventListener("hardwareBackPress", backActionHandler);
+  // useEffect(() => {
+  //   BackHandler.addEventListener("hardwareBackPress", backActionHandler);
 
-    return () =>
-      BackHandler.removeEventListener("hardwareBackPress", backActionHandler);
-  }, []);
+  //   return () =>
+  //     BackHandler.removeEventListener("hardwareBackPress", backActionHandler);
+  // }, []);
 
   useFocusEffect(
     useCallback(() => {
@@ -54,7 +58,7 @@ const HomePage = () => {
   const onRefresh = useCallback(() => {
     setRefreshing(true);
     refetchPosts().then(() => {
-      setRefreshing(false)
+      setRefreshing(false);
     });
   }, []);
 
@@ -79,18 +83,20 @@ const HomePage = () => {
 const Post = ({ post }: { post: Post }) => {
   return (
     <Card style={{ padding: 20, marginBottom: 20 }}>
-      <Text variant="titleLarge" style={{ marginBottom: 10 }}>
-        {post.title}
-      </Text>
-      <Text>{post.body}</Text>
       <Link
-        style={{ marginTop: 10 }}
         href={{
           pathname: "/(tabs)/(posts)/[id]",
           params: { id: post.id },
         }}
+        asChild
       >
-        <Button mode="outlined">View post</Button>
+        <Pressable>
+          <Text style={{ opacity: 0.5 }}>by {post.user.name} - {formatDate(post.created_at)}</Text>
+          <Text variant="titleLarge" style={{ marginBottom: 15 }}>
+            {post.title}
+          </Text>
+          <Text>{truncateString(post.body)}</Text>
+        </Pressable>
       </Link>
     </Card>
   );

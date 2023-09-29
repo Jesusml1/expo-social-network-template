@@ -149,15 +149,14 @@ const useAuthStore = create<AuthStore>()((set, get) => ({
   },
   signOutUser: async () => {
     try {
+      await SecureStore.deleteItemAsync("user");
+      await SecureStore.deleteItemAsync("token");
       const userToken = get().token;
       if (userToken) {
         const response = await signOut(userToken);
         if (response) {
           console.log(response.data);
         }
-
-        await SecureStore.deleteItemAsync("user");
-        await SecureStore.deleteItemAsync("token");
 
         set((state) => ({
           ...state,
@@ -166,7 +165,8 @@ const useAuthStore = create<AuthStore>()((set, get) => ({
           errors: null,
         }));
       }
-    } catch (error) {}
+    } catch (error) {
+    }
   },
   clearErrors() {
     set((state) => ({
