@@ -1,9 +1,12 @@
+import { create } from "zustand";
 import axios, { AxiosError } from "axios";
 import { API_URL } from "contanst";
 import { ValidationErrors } from "types/types";
-import { create } from "zustand";
 
-type NewPost = {
+import useAuthStore from "./useAuthStore";
+import { getPosts, storePost } from "services/postServices";
+
+export type NewPost = {
   user_id: number;
   title: string;
   body: string;
@@ -24,24 +27,62 @@ interface InputErrors {
 interface PostStore {
   posts: Array<Post>;
   post: Post | null;
+  page: number;
+
   title: string;
   body: string;
   errors: {
     message: string;
     errors: InputErrors | null;
   } | null;
+
+  fetchPosts: () => Promise<void>;
+  refetchPosts: () => Promise<void>;
+
   setTitle: (text: string) => void;
   setBody: (text: string) => void;
-  createPost: (userId: number, userToken: string) => Promise<boolean>;
+  createPost: () => Promise<boolean>;
 }
 
 const usePostStore = create<PostStore>()((set, get) => ({
   posts: [],
   post: null,
+  page: 1,
 
   title: "",
   body: "",
   errors: null,
+
+  fetchPosts: async () => {
+    try {
+      const response = await getPosts(get().page);
+      if (response.status === 200) {
+        set((state) => ({
+          ...state,
+          page: state.page + 1,
+          posts: [...state.posts, ...response.data.data],
+        }));
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  },
+
+  refetchPosts: async () => {
+    try {
+      const response = await getPosts(1);
+      if (response.status === 200) {
+        set((state) => ({
+          ...state,
+          page: 2,
+          posts: [...response.data.data],
+        }));
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  },
+
   setTitle: (text: string) => {
     set((state) => ({
       ...state,
@@ -54,26 +95,25 @@ const usePostStore = create<PostStore>()((set, get) => ({
       body: text,
     }));
   },
-  createPost: async (userId: number, userToken: string) => {
+  createPost: async () => {
     try {
-      const newPost = {
-        user_id: userId,
-        title: get().title,
-        body: get().body,
-      } as NewPost;
-
-      const response = await axios.post(API_URL + "/posts", newPost, {
-        headers: { Authorization: "Bearer " + userToken },
-      });
-      if (response.status === 201) {
-        set((state) => ({
-          ...state,
-          title: "",
-          body: "",
-          errors: null,
-        }));
-        console.log("post created");
-        return true;
+      const userId = useAuthStore.getState().user?.id;
+      if (userId) {
+        const newPost: NewPost = {
+          user_id: userId,
+          title: get().title,
+          body: get().body,
+        };
+        const response = await storePost(newPost);
+        if (response.status === 201) {
+          set((state) => ({
+            ...state,
+            title: "",
+            body: "",
+            errors: null,
+          }));
+          return true;
+        }
       }
       return false;
     } catch (error) {

@@ -1,29 +1,25 @@
 import { Tabs, useRouter } from "expo-router";
 import { FontAwesome5 } from "@expo/vector-icons";
 import { Button } from "react-native-paper";
-import usePostStore from "../../store/usePostStore";
-import useAuthStore from "../../store/useAuthStore";
+import usePostStore from "store/usePostStore";
 import { useState } from "react";
 
 export default () => {
-  const { user, token } = useAuthStore();
   const { createPost } = usePostStore();
   const router = useRouter();
   const [loading, setLoading] = useState<boolean>(false);
 
   function handleCreatePost() {
-    if (user && token) {
-      setLoading(true);
-      createPost(user.id, token)
-        .then((success) => {
-          if (success) {
-            router.push("/(tabs)/(posts)/home");
-          }
-        })
-        .finally(() => {
-          setLoading(false);
-        });
-    }
+    setLoading(true);
+    createPost()
+      .then((success) => {
+        if (success) {
+          router.push("/(tabs)/(posts)/home");
+        }
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   }
 
   return (

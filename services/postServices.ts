@@ -1,17 +1,22 @@
-import axios, { AxiosError } from "axios";
-import { API_URL } from "../contanst";
+import axios from "axios";
+import { API_URL } from "contanst";
+import useAuthStore from "store/useAuthStore";
+import { NewPost } from "store/usePostStore";
 
 export async function getPosts(page: number) {
-  try {
-    const response = await axios(API_URL + "/posts?page=" + page);
-    if (response.status === 200) {
-      return response.data;
-    }
-  } catch (error) {
-    if (error instanceof AxiosError) {
-      if (error.response) {
-        return error.response.data;
-      }
-    }
-  }
+  const userToken = useAuthStore.getState().token;
+  const headers = { Authorization: `Bearer ${userToken}` };
+  const response = await axios.get(`${API_URL}/posts?page=${page}`, {
+    headers,
+  });
+  return response;
+}
+
+export async function storePost(newPost: NewPost) {
+  const userToken = useAuthStore.getState().token;
+  const headers = { Authorization: `Bearer ${userToken}` };
+  const response = await axios.post(`${API_URL}/posts`, newPost, {
+    headers,
+  });
+  return response;
 }
