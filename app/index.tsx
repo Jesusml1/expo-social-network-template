@@ -1,5 +1,5 @@
 import { useFocusEffect, useRouter } from "expo-router";
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback } from "react";
 import { View, useWindowDimensions } from "react-native";
 import { Button, Text } from "react-native-paper";
 import useAuthStore from "../store/useAuthStore";
@@ -14,7 +14,7 @@ const LoginPage = () => {
       clearErrors();
       getUser();
       if (user) {
-        router.push("/(tabs)/home");
+        router.push("/(tabs)/(posts)/home");
       }
     }, [user])
   );

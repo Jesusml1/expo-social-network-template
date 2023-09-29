@@ -17,7 +17,7 @@ export default () => {
       createPost(user.id, token)
         .then((success) => {
           if (success) {
-            router.push("/(tabs)/home");
+            router.push("/(tabs)/(posts)/home");
           }
         })
         .finally(() => {
@@ -29,7 +29,7 @@ export default () => {
   return (
     <Tabs>
       <Tabs.Screen
-        name="home"
+        name="(posts)"
         options={{
           tabBarLabel: "Home",
           headerTitle: "Home",

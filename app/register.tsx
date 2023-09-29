@@ -8,8 +8,8 @@ import {
   TextInput,
 } from "react-native-paper";
 import { useRouter } from "expo-router";
-import { signUpCredentials } from "../types/auth";
-import useAuthStore from "../store/useAuthStore";
+import useAuthStore from "store/useAuthStore";
+import { signUpCredentials } from "types/auth";
 
 const RegisterPage = () => {
   const { width: screenWidth } = useWindowDimensions();
@@ -34,7 +34,7 @@ const RegisterPage = () => {
     signUpUser(credentials)
       .then((success) => {
         if (success) {
-          router.push("/(tabs)/home");
+          router.push("/(tabs)/(posts)/home");
           clearInputs();
         } else if (!success) {
           setVisible(true);

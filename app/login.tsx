@@ -8,8 +8,8 @@ import {
   Text,
   TextInput,
 } from "react-native-paper";
-import useAuthStore from "../store/useAuthStore";
-import { signInCredentials } from "../types/auth";
+import useAuthStore from "store/useAuthStore";
+import { signInCredentials } from "types/auth";
 
 const LoginPage = () => {
   const { width: screenWidth } = useWindowDimensions();
@@ -25,7 +25,7 @@ const LoginPage = () => {
     useCallback(() => {
       getUser().then(() => {
         if (user !== null) {
-          router.push("/(tabs)/home");
+          router.push("/(tabs)/(posts)/home");
         }
       });
     }, [])
@@ -37,7 +37,7 @@ const LoginPage = () => {
     signInUser(credentials)
       .then((success) => {
         if (success) {
-          router.push("/(tabs)/home");
+          router.push("/(tabs)/(posts)/home");
           clearInputs();
         } else if (!success) {
           setVisible(true);

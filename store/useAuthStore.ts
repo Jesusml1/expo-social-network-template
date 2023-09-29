@@ -3,11 +3,11 @@ import {
   ValidationErrors,
   signInCredentials,
   signUpCredentials,
-} from "../types/auth";
+} from "types/auth";
 import { create } from "zustand";
 import * as SecureStore from "expo-secure-store";
 import axios, { AxiosError } from "axios";
-import { API_URL } from "../contanst";
+import { API_URL } from "contanst";
 
 interface InputErrors {
   name: Array<string> | null;

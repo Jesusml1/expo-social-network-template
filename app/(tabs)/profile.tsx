@@ -1,9 +1,8 @@
 import { useRouter } from "expo-router";
-import React, { useEffect } from "react";
+import React from "react";
 import { Alert, View, useWindowDimensions } from "react-native";
 import { Button, Card, Text } from "react-native-paper";
-
-import useAuthStore from "../../store/useAuthStore";
+import useAuthStore from "store/useAuthStore";
 
 const ProfilePage = () => {
   const authStore = useAuthStore();

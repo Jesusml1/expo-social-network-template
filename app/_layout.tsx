@@ -1,4 +1,4 @@
-import { Stack, useRouter } from "expo-router";
+import { Stack } from "expo-router";
 import React from "react";
 import { PaperProvider, DefaultTheme } from "react-native-paper";
 
@@ -13,8 +13,6 @@ const theme = {
 };
 
 const StackLayout = () => {
-  const router = useRouter();
-
   return (
     <PaperProvider theme={theme}>
       <Stack>

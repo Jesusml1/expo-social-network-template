@@ -1,7 +1,7 @@
 import React from "react";
 import { View, useWindowDimensions } from "react-native";
 import { HelperText, TextInput } from "react-native-paper";
-import usePostStore from "../../store/usePostStore";
+import usePostStore from "store/usePostStore";
 
 const CreatePostPage = () => {
   const { width: screenWidth } = useWindowDimensions();

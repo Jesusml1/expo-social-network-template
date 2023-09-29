@@ -1,6 +1,6 @@
 import axios, { AxiosError } from "axios";
-import { API_URL } from "../contanst";
-import { ValidationErrors } from "../types/types";
+import { API_URL } from "contanst";
+import { ValidationErrors } from "types/types";
 import { create } from "zustand";
 
 type NewPost = {
@@ -9,12 +9,21 @@ type NewPost = {
   body: string;
 };
 
+type Post = {
+  id: number;
+  title: string;
+  body: string;
+  created_at: string;
+};
+
 interface InputErrors {
   title: Array<string>;
   body: Array<string>;
 }
 
 interface PostStore {
+  posts: Array<Post>;
+  post: Post | null;
   title: string;
   body: string;
   errors: {
@@ -27,6 +36,9 @@ interface PostStore {
 }
 
 const usePostStore = create<PostStore>()((set, get) => ({
+  posts: [],
+  post: null,
+
   title: "",
   body: "",
   errors: null,
@@ -69,7 +81,7 @@ const usePostStore = create<PostStore>()((set, get) => ({
       if (axios.isAxiosError(e)) {
         if (e.response !== undefined) {
           if (e.response.status === 422) {
-            console.log(e.response.data)
+            console.log(e.response.data);
             if (
               e.response.data !== undefined &&
               e.response.data.message &&

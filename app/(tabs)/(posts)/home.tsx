@@ -3,12 +3,13 @@ import {
   useWindowDimensions,
   Alert,
   BackHandler,
+  View,
 } from "react-native";
 import React, { useCallback, useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Button, Card, Text } from "react-native-paper";
 import axios from "axios";
-import { useFocusEffect } from "expo-router";
+import { Link, useFocusEffect } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 
 type Post = {
@@ -45,7 +46,7 @@ const HomePage = () => {
 
   useFocusEffect(
     useCallback(() => {
-      if(posts.length === 0){
+      if (posts.length === 0) {
         fetchPosts();
       }
     }, [])
@@ -61,7 +62,7 @@ const HomePage = () => {
         }
       );
       if (response.status === 200) {
-        console.log('fetching page ' + page);
+        console.log("fetching page " + page);
         setPosts([...posts, ...response.data.data]);
         setPage(page + 1);
       }
@@ -120,7 +121,15 @@ const Post = ({ post }: { post: Post }) => {
         {post.title}
       </Text>
       <Text>{post.body}</Text>
-      <Button>More</Button>
+      <Link
+        style={{ marginTop: 10 }}
+        href={{
+          pathname: "/(tabs)/(posts)/[id]",
+          params: { id: post.id },
+        }}
+      >
+        <Button mode="outlined">View post</Button>
+      </Link>
     </Card>
   );
 };
