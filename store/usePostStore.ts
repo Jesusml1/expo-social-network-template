@@ -37,6 +37,7 @@ interface PostStore {
 
   fetchPosts: () => Promise<void>;
   refetchPosts: () => Promise<void>;
+  setPost: (id: number) => void;
 
   setTitle: (text: string) => void;
   setBody: (text: string) => void;
@@ -80,6 +81,14 @@ const usePostStore = create<PostStore>()((set, get) => ({
     } catch (error) {
       console.log(error);
     }
+  },
+
+  setPost(id) {
+    const currentPost = get().posts.find((p) => p.id === id);
+    set((state) => ({
+      ...state,
+      post: currentPost,
+    }));
   },
 
   setTitle: (text: string) => {

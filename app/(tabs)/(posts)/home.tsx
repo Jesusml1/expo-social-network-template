@@ -14,6 +14,7 @@ type Post = {
   id: number;
   title: string;
   body: string;
+  created_at: string;
 };
 
 const HomePage = () => {
