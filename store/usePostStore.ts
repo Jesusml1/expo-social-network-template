@@ -3,21 +3,13 @@ import axios, { AxiosError } from "axios";
 import { ValidationErrors } from "types/types";
 
 import useAuthStore from "./useAuthStore";
-import { getPosts, storePost } from "services/postServices";
-import { User } from "types/auth";
+import { getPosts, getSinglePost, storePost } from "services/postServices";
+import { Post } from "types/posts";
 
 export type NewPost = {
   user_id: number;
   title: string;
   body: string;
-};
-
-type Post = {
-  id: number;
-  title: string;
-  body: string;
-  created_at: string;
-  user: User
 };
 
 interface InputErrors {
@@ -40,6 +32,7 @@ interface PostStore {
   fetchPosts: () => Promise<void>;
   refetchPosts: () => Promise<void>;
   setPost: (id: number) => void;
+  fetchSinglePost: (id: number) => Promise<void>;
 
   setTitle: (text: string) => void;
   setBody: (text: string) => void;
@@ -77,6 +70,7 @@ const usePostStore = create<PostStore>()((set, get) => ({
         set((state) => ({
           ...state,
           page: 2,
+          post: null,
           posts: [...response.data.data],
         }));
       }
@@ -85,12 +79,29 @@ const usePostStore = create<PostStore>()((set, get) => ({
     }
   },
 
-  setPost(id) {
+  setPost(id: number) {
     const currentPost = get().posts.find((p) => p.id === id);
     set((state) => ({
       ...state,
       post: currentPost,
     }));
+  },
+
+  fetchSinglePost: async (id: number) => {
+    try {
+      const response = await getSinglePost(id);
+      if (response.status === 200) {
+        const post = response.data;
+        console.log(post);
+        set((state) => ({
+          ...state,
+          posts: get().posts.map((p) => (p.id === id ? post : p)),
+          post: post,
+        }));
+      }
+    } catch (error) {
+      console.log(error);
+    }
   },
 
   setTitle: (text: string) => {

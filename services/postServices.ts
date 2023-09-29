@@ -12,6 +12,15 @@ export async function getPosts(page: number) {
   return response;
 }
 
+export async function getSinglePost(id: number) {
+  const userToken = useAuthStore.getState().token;
+  const headers = { Authorization: `Bearer ${userToken}` };
+  const response = await axios.get(`${API_URL}/posts/${id}`, {
+    headers,
+  });
+  return response;
+}
+
 export async function storePost(newPost: NewPost) {
   const userToken = useAuthStore.getState().token;
   const headers = { Authorization: `Bearer ${userToken}` };

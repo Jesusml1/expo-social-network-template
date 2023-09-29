@@ -10,16 +10,8 @@ import {
 import { Card, Text } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 import usePostStore from "store/usePostStore";
-import { User } from "types/auth";
+import { type Post } from "types/posts";
 import { formatDate, truncateString } from "utils/formatting";
-
-type Post = {
-  id: number;
-  title: string;
-  body: string;
-  created_at: string;
-  user: User;
-};
 
 const HomePage = () => {
   const { width: screenWidth } = useWindowDimensions();

@@ -5,7 +5,7 @@ import usePostStore from "store/usePostStore";
 import { useState } from "react";
 
 export default () => {
-  const { createPost } = usePostStore();
+  const { createPost, refetchPosts } = usePostStore();
   const router = useRouter();
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -14,6 +14,7 @@ export default () => {
     createPost()
       .then((success) => {
         if (success) {
+          refetchPosts();
           router.push("/(tabs)/(posts)/home");
         }
       })
