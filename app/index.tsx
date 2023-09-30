@@ -2,7 +2,7 @@ import { useFocusEffect, useRouter } from "expo-router";
 import React, { useCallback } from "react";
 import { View, useWindowDimensions } from "react-native";
 import { Button, Text } from "react-native-paper";
-import useAuthStore from "../store/useAuthStore";
+import useAuthStore from "store/useAuthStore";
 
 const LoginPage = () => {
   const { width: screenWidth } = useWindowDimensions();

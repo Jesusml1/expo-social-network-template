@@ -1,33 +1,14 @@
+import axios, { AxiosError } from "axios";
+import * as SecureStore from "expo-secure-store";
+import { signIn, signOut, signUp } from "services/authServices";
 import {
-  User,
+  AuthStore,
+  InputErrors,
   ValidationErrors,
   signInCredentials,
-  signUpCredentials,
+  signUpCredentials
 } from "types/auth";
 import { create } from "zustand";
-import * as SecureStore from "expo-secure-store";
-import axios, { AxiosError } from "axios";
-import { signIn, signOut, signUp } from "services/authServices";
-
-interface InputErrors {
-  name: Array<string> | null;
-  email: Array<string>;
-  password: Array<string>;
-}
-
-interface AuthStore {
-  user: User | null;
-  token: string | null;
-  errors: {
-    message: string;
-    errors: InputErrors | null;
-  } | null;
-  getUser: () => Promise<void>;
-  signInUser: (credentials: signInCredentials) => Promise<boolean>;
-  signUpUser: (credentials: signUpCredentials) => Promise<boolean>;
-  signOutUser: () => Promise<void>;
-  clearErrors: () => void;
-}
 
 const useAuthStore = create<AuthStore>()((set, get) => ({
   user: null,

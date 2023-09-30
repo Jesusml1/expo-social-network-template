@@ -1,13 +1,9 @@
-import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import { View, useWindowDimensions } from "react-native";
 import { Card, Searchbar } from "react-native-paper";
 
 const SearchPage = () => {
-  const router = useRouter();
-
   const { width: screenWidth } = useWindowDimensions();
-
   const [searchQuery, setSearchQuery] = useState<string>("");
   const onChangeSearch = (query: React.SetStateAction<string>) =>
     setSearchQuery(query);

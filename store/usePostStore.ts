@@ -1,43 +1,9 @@
-import { create } from "zustand";
 import axios, { AxiosError } from "axios";
 import { ValidationErrors } from "types/types";
-
-import useAuthStore from "./useAuthStore";
+import { create } from "zustand";
 import { getPosts, getSinglePost, storePost } from "services/postServices";
-import { Post } from "types/posts";
-
-export type NewPost = {
-  user_id: number;
-  title: string;
-  body: string;
-};
-
-interface InputErrors {
-  title: Array<string>;
-  body: Array<string>;
-}
-
-interface PostStore {
-  posts: Array<Post>;
-  post: Post | null;
-  page: number;
-
-  title: string;
-  body: string;
-  errors: {
-    message: string;
-    errors: InputErrors | null;
-  } | null;
-
-  fetchPosts: () => Promise<void>;
-  refetchPosts: () => Promise<void>;
-  setPost: (id: number) => void;
-  fetchSinglePost: (id: number) => Promise<void>;
-
-  setTitle: (text: string) => void;
-  setBody: (text: string) => void;
-  createPost: () => Promise<boolean>;
-}
+import { InputErrors, NewPost, PostStore } from "types/posts";
+import useAuthStore from "./useAuthStore";
 
 const usePostStore = create<PostStore>()((set, get) => ({
   posts: [],

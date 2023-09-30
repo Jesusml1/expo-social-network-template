@@ -1,11 +1,9 @@
 import { Link, useFocusEffect } from "expo-router";
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback } from "react";
 import {
-  Alert,
-  BackHandler,
   FlatList,
   Pressable,
-  useWindowDimensions,
+  useWindowDimensions
 } from "react-native";
 import { Card, Text } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -17,25 +15,6 @@ const HomePage = () => {
   const { width: screenWidth } = useWindowDimensions();
   const [refreshing, setRefreshing] = React.useState(false);
   const { posts, fetchPosts, refetchPosts } = usePostStore();
-
-  // const backActionHandler = () => {
-  //   Alert.alert("Are you sure?", "Are you sure you want to exit?", [
-  //     {
-  //       text: "Cancel",
-  //       onPress: () => null,
-  //       style: "cancel",
-  //     },
-  //     { text: "Yes", onPress: () => BackHandler.exitApp() },
-  //   ]);
-  //   return true;
-  // };
-
-  // useEffect(() => {
-  //   BackHandler.addEventListener("hardwareBackPress", backActionHandler);
-
-  //   return () =>
-  //     BackHandler.removeEventListener("hardwareBackPress", backActionHandler);
-  // }, []);
 
   useFocusEffect(
     useCallback(() => {
@@ -55,7 +34,7 @@ const HomePage = () => {
   }, []);
 
   return (
-    <SafeAreaView
+    <SafeAreaView edges={['bottom', 'left', 'right']}
       style={{ flex: 1, justifyContent: "flex-start", alignItems: "center" }}
     >
       <FlatList
@@ -66,7 +45,7 @@ const HomePage = () => {
         onRefresh={onRefresh}
         onEndReached={() => fetchPosts()}
         onEndReachedThreshold={0.9}
-        style={{ minHeight: 50, width: screenWidth - 20 }}
+        style={{ minHeight: 50, width: screenWidth - 20, marginVertical: 10 }}
       />
     </SafeAreaView>
   );
