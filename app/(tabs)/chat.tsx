@@ -11,15 +11,6 @@ import useAuthStore from "store/useAuthStore";
 import { User } from "types/auth";
 import { formatDate } from "utils/formatting";
 
-let client = new PusherJs(PUSHER_KEY_APP, {
-  wsHost: PUSHER_HOST,
-  wsPort: PUSHER_PORT,
-  forceTLS: false,
-  cluster: "",
-  disableStats: false,
-  enabledTransports: ["ws", "wss"],
-});
-
 type Message = {
   id: number;
   user_id: string;
@@ -32,19 +23,24 @@ const ChatPage = () => {
   const { width: screenWidth } = useWindowDimensions();
   const [input, setInput] = useState<string>("");
   const [messages, setMessages] = useState<Array<Message>>([]);
+  const [nextCursor, setNextCursor] = useState<string>("");
   const { token, user } = useAuthStore();
-  const [refreshing, setRefreshing] = React.useState(false);
+  const [refreshing, setRefreshing] = useState<boolean>(false);
+  const [receivedMessage, setReceivedMessage] = useState<Message | null>(null);
 
   const onChangeInput = (text: React.SetStateAction<string>) => setInput(text);
 
   async function fetchMessages() {
     try {
-      console.log("fetching messages");
-      const response = await axios.get(API_URL + "/messages", {
-        headers: { Authorization: "Bearer " + token },
-      });
+      const response = await axios.get(
+        API_URL + "/messages?cursor=" + nextCursor,
+        {
+          headers: { Authorization: "Bearer " + token },
+        }
+      );
       if (response.status === 200) {
-        setMessages(response.data);
+        setMessages([...messages, ...response.data.data]);
+        setNextCursor(response.data.next_cursor);
       }
     } catch (e) {
       console.log(e);
@@ -66,7 +62,7 @@ const ChatPage = () => {
         );
         if (response.status === 201) {
           setInput("");
-          setMessages([...messages, response.data.message]);
+          setMessages([response.data.message, ...messages]);
         }
       }
     } catch (e) {
@@ -79,10 +75,20 @@ const ChatPage = () => {
   }
 
   useEffect(() => {
+    fetchMessages();
+
+    const client = new PusherJs(PUSHER_KEY_APP, {
+      wsHost: PUSHER_HOST,
+      wsPort: PUSHER_PORT,
+      forceTLS: false,
+      cluster: "",
+      disableStats: false,
+      enabledTransports: ["ws", "wss"],
+    });
     client
       .subscribe("public")
       .bind("chat", ({ message: incommingMessage }: { message: Message }) => {
-        setMessages([...messages, incommingMessage]);
+        setReceivedMessage(incommingMessage);
       });
 
     return () => {
@@ -90,15 +96,53 @@ const ChatPage = () => {
     };
   }, []);
 
+  useEffect(() => {
+    if (receivedMessage !== null) {
+      setMessages([receivedMessage, ...messages]);
+      setReceivedMessage(null);
+    }
+  }, [receivedMessage]);
+
   const onRefresh = useCallback(() => {
     setRefreshing(true);
     fetchMessages();
   }, []);
 
-  useFocusEffect(
-    useCallback(() => {
-      fetchMessages();
-    }, [])
+  // useFocusEffect(
+  //   useCallback(() => {
+  //     setPage(1);
+  //     fetchMessages();
+  //   }, [])
+  // );
+
+  const MessageCard = useCallback(
+    ({ message }: { message: Message }) => {
+      const calculatedWidth =
+        message.content.length > 75 ? "100%" : message.content.length * 20;
+      return (
+        <View
+          style={{
+            padding: 20,
+            marginBottom: 20,
+            backgroundColor: "#e5e7eb",
+            borderRadius: 5,
+            width: calculatedWidth,
+            minWidth: 200,
+          }}
+        >
+          <Text style={{ fontSize: 14, opacity: 0.7, marginBottom: 5 }}>
+            {message.user.name}
+          </Text>
+          <Text style={{ fontSize: 16 }}>{message.content}</Text>
+          <View style={{ display: "flex", alignItems: "flex-end" }}>
+            <Text style={{ fontSize: 12 }}>
+              {formatDate(message.created_at)}
+            </Text>
+          </View>
+        </View>
+      );
+    },
+    [messages]
   );
 
   return (
@@ -111,12 +155,12 @@ const ChatPage = () => {
       }}
     >
       <FlatList
-        data={[...messages].reverse()}
+        data={messages}
         renderItem={({ item }) => <MessageCard message={item} />}
-        keyExtractor={(item) => item.id.toString()}
+        keyExtractor={(item) => item.created_at}
         refreshing={refreshing}
         onRefresh={onRefresh}
-        extraData={messages}
+        onEndReached={() => fetchMessages()}
         inverted
         style={{
           minHeight: 50,
@@ -153,31 +197,6 @@ const ChatPage = () => {
         </Button>
       </View>
     </SafeAreaView>
-  );
-};
-
-const MessageCard = ({ message }: { message: Message }) => {
-  const calculatedWidth =
-    message.content.length > 75 ? "100%" : message.content.length * 20;
-  return (
-    <View
-      style={{
-        padding: 20,
-        marginBottom: 20,
-        backgroundColor: "#aaaaaa",
-        borderRadius: 5,
-        width: calculatedWidth,
-        minWidth: 200,
-      }}
-    >
-      <Text style={{ fontSize: 14, opacity: 0.7, marginBottom: 5 }}>
-        {message.user.name}
-      </Text>
-      <Text style={{ fontSize: 16 }}>{message.content}</Text>
-      <View style={{ display: "flex", alignItems: "flex-end" }}>
-        <Text style={{ fontSize: 12 }}>{formatDate(message.created_at)}</Text>
-      </View>
-    </View>
   );
 };
 
