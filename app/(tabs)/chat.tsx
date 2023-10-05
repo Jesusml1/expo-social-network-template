@@ -2,10 +2,16 @@ import axios from "axios";
 import { API_URL, PUSHER_HOST, PUSHER_KEY_APP, PUSHER_PORT } from "contanst";
 import { useFocusEffect } from "expo-router";
 import PusherJs from "pusher-js";
-import React, { useCallback, useEffect, useState } from "react";
-import { View, useWindowDimensions } from "react-native";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import {
+  NativeScrollEvent,
+  NativeSyntheticEvent,
+  View,
+  useWindowDimensions,
+} from "react-native";
 import { FlatList } from "react-native-gesture-handler";
-import { Button, Text, TextInput } from "react-native-paper";
+import { Button, IconButton, Text, TextInput } from "react-native-paper";
+import { useSharedValue } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 import useAuthStore from "store/useAuthStore";
 import { User } from "types/auth";
@@ -27,8 +33,11 @@ const ChatPage = () => {
   const { token, user } = useAuthStore();
   const [refreshing, setRefreshing] = useState<boolean>(false);
   const [receivedMessage, setReceivedMessage] = useState<Message | null>(null);
+  const messagesFlatlistRef = useRef<FlatList>(null);
+  const [showGoDownButton, setShowGoDownButton] = useState<boolean>(false);
 
   const onChangeInput = (text: React.SetStateAction<string>) => setInput(text);
+  const prevScrollPos = useRef(0);
 
   async function fetchMessages() {
     try {
@@ -115,6 +124,18 @@ const ChatPage = () => {
   //   }, [])
   // );
 
+  const handleOnScroll = useCallback(
+    (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+      if (showGoDownButton === false) {
+        const verticalOffset = e.nativeEvent.contentOffset.y;
+        if (prevScrollPos.current < verticalOffset) {
+          setShowGoDownButton(true);
+        }
+      }
+    },
+    []
+  );
+
   const MessageCard = useCallback(
     ({ message }: { message: Message }) => {
       const calculatedWidth =
@@ -151,17 +172,35 @@ const ChatPage = () => {
       style={{
         justifyContent: "flex-start",
         alignItems: "flex-start",
+        position: "relative",
         flex: 1,
       }}
     >
+      {showGoDownButton && (
+        <IconButton
+          mode="contained"
+          containerColor="white"
+          icon="arrow-down"
+          style={{ position: "absolute", zIndex: 10, bottom: 80, right: 5 }}
+          onPress={() =>
+            messagesFlatlistRef.current?.scrollToIndex({
+              animated: true,
+              index: 0,
+            })
+          }
+        />
+      )}
       <FlatList
         data={messages}
         renderItem={({ item }) => <MessageCard message={item} />}
         keyExtractor={(item) => item.created_at}
         refreshing={refreshing}
+        onScroll={handleOnScroll}
         onRefresh={onRefresh}
         onEndReached={() => fetchMessages()}
+        onStartReached={() => setShowGoDownButton(false)}
         inverted
+        ref={messagesFlatlistRef}
         style={{
           minHeight: 50,
           display: "flex",
