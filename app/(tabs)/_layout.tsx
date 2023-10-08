@@ -66,7 +66,7 @@ export default () => {
         }}
       />
       <Tabs.Screen
-        name="chat"
+        name="(messages)"
         options={{
           tabBarLabel: "Chat",
           headerTitle: "Messages",
